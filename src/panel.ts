@@ -47,8 +47,61 @@ const voiceFor = (language: string) =>
     .getVoices()
     .find((voice) => voice.lang.toLowerCase().startsWith(language) || (language === "he" && voice.lang.toLowerCase().startsWith("iw")));
 
-function speak(text: string) {
+// A natural Hebrew voice served by tts/server.py on this computer, when it is installed.
+const LOCAL_VOICE = "http://127.0.0.1:5577";
+let playing: HTMLAudioElement | null = null;
+let speakRequest = 0;
+
+/** Silences whatever is being read and makes any reading still being prepared give up. */
+function stopSpeaking() {
+  speakRequest++;
+  playing?.pause();
+  playing = null;
   speechSynthesis.cancel();
+}
+
+const localVoiceAvailable = () =>
+  fetch(`${LOCAL_VOICE}/health`, { signal: AbortSignal.timeout(1500) }).then(
+    (response) => response.ok,
+    () => false,
+  );
+
+/** Returns the audio for `text`, or null when the local voice is not installed or failed. */
+async function localVoiceAudio(text: string): Promise<Blob | null> {
+  try {
+    const response = await fetch(`${LOCAL_VOICE}/speak`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    return response.ok ? await response.blob() : null;
+  } catch {
+    return null;
+  }
+}
+
+async function speak(text: string) {
+  stopSpeaking();
+  const request = speakRequest;
+  if (voiceLanguage === "he") {
+    const audio = await localVoiceAudio(text);
+    if (request !== speakRequest) return; // something newer was asked for while this was being prepared
+    if (audio) {
+      const url = URL.createObjectURL(audio);
+      const player = new Audio(url);
+      player.addEventListener("ended", () => URL.revokeObjectURL(url));
+      player.addEventListener("pause", () => URL.revokeObjectURL(url));
+      playing = player;
+      try {
+        await player.play();
+        return;
+      } catch (error) {
+        console.error(error);
+        if (request !== speakRequest) return;
+        playing = null;
+      }
+    }
+  }
   const utterance = new SpeechSynthesisUtterance(text);
   const voice = voiceFor(voiceLanguage);
   if (voice) utterance.voice = voice;
@@ -69,16 +122,18 @@ function speakButton(text: string) {
 function setReadAloud(on: boolean) {
   readAloud = on;
   speakToggle.setAttribute("aria-pressed", String(on));
-  if (!on) speechSynthesis.cancel();
+  if (!on) stopSpeaking();
 }
 
 smallerButton.addEventListener("click", () => changeSize(-1));
 biggerButton.addEventListener("click", () => changeSize(1));
-speakToggle.addEventListener("click", () => {
+speakToggle.addEventListener("click", async () => {
   setReadAloud(!readAloud);
   chrome.storage.local.set({ readAloud });
   if (!readAloud) return;
-  if (voiceFor(voiceLanguage)) speak("מעכשיו אקריא את התשובות בקול.");
+  const canSpeak = (voiceLanguage === "he" && (await localVoiceAvailable())) || voiceFor(voiceLanguage) !== undefined;
+  if (!readAloud) return; // switched off again while checking
+  if (canSpeak) speak("מעכשיו אקריא את התשובות בקול.");
   else show("error", "במחשב הזה לא מותקן קול בשפה שלך, אז ייתכן שההקראה לא תישמע. אפשר להתקין קול בהגדרות המחשב.");
 });
 
@@ -244,7 +299,7 @@ async function ask(userText: string, auto = false) {
   // Forms and buttons from earlier replies belong to a page state that is now stale.
   const stale = [...log.querySelectorAll<HTMLButtonElement | HTMLInputElement>("button:enabled:not(.speak), input:enabled")];
   for (const control of stale) control.disabled = true;
-  speechSynthesis.cancel();
+  stopSpeaking();
   if (!auto) show("user", userText);
   const waiting = show("status", "רגע…");
   for (const control of [explainButton, resetButton, textBox]) control.disabled = true;
@@ -321,7 +376,7 @@ explainButton.addEventListener("click", () => ask("אני צריך עזרה עם
 
 resetButton.addEventListener("click", () => {
   assistant.reset();
-  speechSynthesis.cancel();
+  stopSpeaking();
   log.replaceChildren();
   welcome();
 });
