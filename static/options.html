@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>הגדרות Luma</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body class="options">
+<h1>הגדרות Luma</h1>
+<form id="form">
+  <label for="provider">של מי המפתח</label>
+  <select id="provider">
+    <option value="anthropic">Claude (Anthropic)</option>
+    <option value="opencode">OpenCode Go</option>
+  </select>
+  <label for="key">מפתח API</label>
+  <input id="key" type="password" dir="ltr" autocomplete="off" required>
+  <label for="language">באיזו שפה להסביר</label>
+  <select id="language">
+    <option>עברית</option>
+    <option>العربية</option>
+    <option>Русский</option>
+    <option>አማርኛ</option>
+    <option>English</option>
+    <option>Français</option>
+    <option>Español</option>
+  </select>
+  <label for="memory">מה Luma זוכר עליך</label>
+  <textarea id="memory" rows="10"></textarea>
+  <p class="note">כל שורה היא דבר אחד ש‑Luma למד משיחות קודמות. אפשר לתקן או למחוק שורות, ולשמור.</p>
+  <button type="submit">שמור</button>
+  <p id="saved" hidden>נשמר ✓</p>
+</form>
+<p class="note">המפתח נשמר רק בדפדפן הזה. בכל פעם שמבקשים עזרה, צילום של הדף והטקסט שבו נשלחים לספק שנבחר (Anthropic, או OpenCode Go שמעביר אותם ל‑Claude) כדי לקבל הסבר. גם מה ש‑Luma זוכר עליך נשמר רק בדפדפן הזה, ונשלח לספק בתחילת כל שיחה. סיסמאות ופרטי אשראי שכבר הוקלדו בשדות לא נשלחים כטקסט, אבל כדאי לא לבקש עזרה כשמספר כרטיס גלוי על המסך.</p>
+<script src="options.js"></script>
+</body>
+</html>

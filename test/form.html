@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>City Library – Membership Application</title>
+<style>body{font:16px sans-serif;max-width:560px;margin:40px auto}label{display:block;margin:14px 0 4px}input,select,textarea{font:inherit;padding:6px}</style>
+</head>
+<body>
+<h1>Membership Application</h1>
+<p>Please complete all required fields (*) to apply for a free library card. Cards are mailed within 10 business days.</p>
+<form onsubmit="event.preventDefault();document.getElementById('done').hidden=false">
+  <label for="fn">First name *</label><input id="fn" name="first_name" required>
+  <label for="ln">Last name *</label><input id="ln" name="last_name" required>
+  <label for="dob">Date of birth *</label><input id="dob" name="dob" type="date" required>
+  <label for="em">Email address *</label><input id="em" name="email" type="email" required>
+  <label for="ph">Phone number</label><input id="ph" name="phone" type="tel" placeholder="e.g. 050-1234567">
+  <label for="br">Preferred branch *</label>
+  <select id="br" name="branch" required>
+    <option value="">-- choose --</option><option value="c">Central</option><option value="n">North Side</option><option value="h">Harbor</option>
+  </select>
+  <p>Card type *</p>
+  <label><input type="radio" name="card" value="adult"> Adult</label>
+  <label><input type="radio" name="card" value="senior"> Senior (65+)</label>
+  <label><input type="radio" name="card" value="student"> Student</label>
+  <label for="pw">Choose a password *</label><input id="pw" name="password" type="password" required>
+  <label><input type="checkbox" name="news"> Send me the monthly newsletter</label>
+  <label><input type="checkbox" name="terms" required> I agree to the borrowing rules *</label>
+  <label for="notes">Anything else we should know?</label><textarea id="notes" name="notes" rows="3"></textarea>
+  <p><button type="submit">Submit application</button></p>
+</form>
+<p id="done" hidden>Thank you! Your application was received.</p>
+</body>
+</html>

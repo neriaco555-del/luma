@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Luma</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+<header>
+  <button id="explain" class="primary">עזור לי עם הדף</button>
+  <div class="row tools">
+    <button id="smaller" class="secondary" aria-label="הקטן את הכתב">א−</button>
+    <button id="bigger" class="secondary" aria-label="הגדל את הכתב">א+</button>
+    <button id="speak" class="secondary" aria-pressed="false">🔊 הקראה</button>
+    <button id="reset" class="secondary">שיחה חדשה</button>
+  </div>
+</header>
+<main id="log" role="log" aria-live="polite" aria-label="השיחה עם Luma" tabindex="0"></main>
+<form id="reply">
+  <textarea id="text" rows="2" dir="auto" placeholder="כתוב כאן תשובה או שאלה…" aria-label="תשובה או שאלה"></textarea>
+  <button type="submit" class="primary">שלח</button>
+</form>
+<script src="panel.js"></script>
+</body>
+</html>
